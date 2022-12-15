@@ -2,21 +2,22 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const fs = require('fs');
-const socketio = require('socket.io');
 const {Server} = require('socket.io');
 const http = require('http');
 const mysql = require('mysql');
 const cors = require('cors');
+app.use(cors());
 
 
 
 const server = http.createServer(app);
-const io =new Server(server,{
-    cors:{
-        origin: "http://localhost:3001/",
-        methods: ["GET","POST"]
-    }
-});
+
+const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
 
 const users = {};
 const games = {};
@@ -43,7 +44,6 @@ connection.connect((err) => {
 //     console.log('Table created successfully');
 //   });
 
-app.use(cors());
 
 app.use(express.json());
 
@@ -52,6 +52,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+
 
 app.post('/sendMessage', (req, res) => {
     sendMessage(req, res);
@@ -74,7 +76,33 @@ app.post('/logout', (req, res) => {
     res.send({ success: true });
 });
 
-
+app.get('/users/:username', (req, res) => {
+    const username = req.params.username;
+  
+    // Query the database to retrieve the user by their username
+    const query = `
+      SELECT *
+      FROM users
+      WHERE username = ?
+    `;
+  
+    connection.query(query, [username], (error, results) => {
+      if (error) {
+        // Return a 500 error if there was a problem querying the database
+        return res.status(500).json({ error: error.message });
+        console.log(error);
+      }
+  
+      if (results.length > 0) {
+        // Return the user information in the response
+        return res.json(results[0]);
+      } else {
+        // Return a 404 error if the user was not found
+        return res.status(404).json({ error: 'User not found' });
+      }
+    });
+  });
+  
 app.get('/users', (req, res) => {
     // Fetch the list of users from the database
     connection.query('SELECT * FROM users', (err, results) => {
@@ -169,70 +197,29 @@ function sendMessage(req, res) {
 }
 
 
-function register(req, res) {
-    const { username, password, name, lastname } = req.body;
-
-    // Check if the username is already in use
-    if (users[username]) {
-        res.status(409).send({ error: 'Username already in use' });
-        return;
-    }
-
-    // Add the user to the users object
-    users[username] = {
-        password,
-        name,
-        lastname,
-        loggedIn: false,
-        inGameWith: null,
-        messages: []
-    };
-
-    // Insert the user into the database
-    connection.query('INSERT INTO users (username, password, name, lastname, isActive) VALUES (?, ?, ?, ?, false)',
-        [username, password, name, lastname],
-        (err) => {
-            if (err) throw err;
-        });
-
-    res.send({ success: true });
-}
 
 
 
 
 
 // Handle a connection event
-io.on('connection', (socket) => {
-    // Send the initial list of users
-    socket.emit('users', Object.values(users).filter((user) => user.isActive));
-    console.log("Socket connected")
-    // Handle the login event
-    socket.on('login', (user) => {
-      // Update the user's isActive status
-       console.log("You have reached the socket login")
-      user.isActive = true;
-  
-      // Update the user in the `users` variable
-      users[user.id] = user;
-  
-      // Send an updated list of users to all connected clients
-      io.emit('users', Object.values(users).filter((user) => user.isActive));
-    });
-  
-    // Handle the logout event
-    socket.on('logout', (user) => {
-      // Update the user's isActive status
-      user.isActive = false;
-  
-      // Update the user in the `users` variable
-      users[user.id] = user;
-  
-      // Send an updated list of users to all connected clients
-      io.emit('users', Object.values(users).filter((user) => user.isActive));
-    });
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
   });
-  
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+  });
+});
+
 
 server.listen(3000, () => {
     console.log('Server listening on port 3000');
