@@ -40,21 +40,23 @@ function App() {
   }
 
 
+function setOponent(user){
+  setOponentUser(user)
+}
 
 
-
-  const handleOponent = async oponent => {
+  const handleOponent =  oponent => {
     setShowChat(true);
-    setOponentUser(oponent);
-    const room = createRoom();
+    setOponent(oponent);
+    const room = createRoom(oponent);
     socket.emit("join_room", room);
   };
 
 
 
 
-  function createRoom() {
-    const sortedUserIds = [user.userId, oponentUser.userId].sort();
+  function createRoom(opnent) {
+    const sortedUserIds = [user.userId, opnent.userId].sort();
     const roomId = sortedUserIds.join('');
     setRoom(roomId);
     return roomId;

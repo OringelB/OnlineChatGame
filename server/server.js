@@ -121,7 +121,6 @@ app.post('/register', (req, res) => {
         res.status(409).send({ error: 'Username already in use' });
         return;
     }
-
     // Add the user to the users object
     users[username] = {
         password,

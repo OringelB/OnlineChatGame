@@ -18,7 +18,8 @@ function LoginForm(props) {
         if (response.data.success) {
             props.onLogin();
             props.changeUsername(username);
-            alert("welcome " + username)
+            alert("welcome " + username);
+            
         } else {
           // Display an error message
         }
