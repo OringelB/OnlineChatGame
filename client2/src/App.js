@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Chat from './components/Chat';
 import LoginForm from './components/LoginForm';
 import RegistrationForm from './components/RegistrationForm';
 import UserList from './components/UserList';
 import axios from 'axios';
 import io from "socket.io-client"
 import "./App.css";
+import JoinGame from './components/JoinGame';
 
 
 const socket = io.connect("http://localhost:3000");
@@ -15,7 +15,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState(false);
   const [oponentUser, setOponentUser] = useState(null);
-  const [showChat, setShowChat] = useState(false);
+  const [showGame, setShowGame] = useState(false);
   const [user, setUser] = useState(null);
   const [room, setRoom] = useState(0);
 
@@ -40,16 +40,17 @@ function App() {
   }
 
 
-function setOponent(user){
-  setOponentUser(user)
-}
+  function setOponent(user) {
+    setOponentUser(user)
+  }
 
 
-  const handleOponent =  oponent => {
-    setShowChat(true);
+  const handleOponent = oponent => {
+    setShowGame(true);
     setOponent(oponent);
     const room = createRoom(oponent);
     socket.emit("join_room", room);
+
   };
 
 
@@ -72,6 +73,10 @@ function setOponent(user){
         if (response.data.success) {
           // Update the loggedIn state and hide the logout button
           setLoggedIn(false);
+          setShowGame(false);
+          // Delete the userId and username cookies
+          document.cookie = `userId=; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+          document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
         } else {
           // Display an error message
         }
@@ -105,8 +110,9 @@ function setOponent(user){
           </div>
         )}
       </div>
-      {showChat && (
-        <Chat socket={socket} username={username} room={room} />
+
+      {showGame && (
+        <JoinGame socket={socket} username={username} room={room} />
       )}
     </div>
 

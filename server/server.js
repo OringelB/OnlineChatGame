@@ -169,7 +169,7 @@ function login(req, res) {
             console.log('User logged in');
         });
 
-        res.send({ success: true });
+        res.send({ success: true,currentUser: user });
     });
 }
 
@@ -210,13 +210,38 @@ io.on("connection", (socket) => {
     console.log(`User with ID: ${socket.id} joined room: ${data}`);
   });
 
+  socket.on("join_game", (data) => {
+    console.log(data.room);
+    // Check if data.room is defined and the room exists in the socket.adapter.rooms object
+      // Get the clients in the room
+      const clientsInRoom = socket.adapter.rooms.get(data.room).size;
+      console.log(clientsInRoom);
+      // Emit an event with the number of clients in the room
+      socket.to(data.room).emit("joined_game", {clientsInRoom : clientsInRoom} );
+  });
+
+  socket.on("set_player", (data) => {
+    // Check if data.room is defined and the room exists in the socket.adapter.rooms object
+      // Get the clients in the room
+      const clientsInRoom = 2;
+      // Emit an event with the number of clients in the room
+      socket.to(data.room).emit("setting_player", {clientsInRoom : clientsInRoom} );
+  });
+
   socket.on("send_message", (data) => {
     socket.to(data.room).emit("receive_message", data);
+  });
+
+  socket.on("updateGame", (data) => {
+    socket.to(data.room).emit("change_game", data);
   });
 
   socket.on("disconnect", () => {
     console.log("User Disconnected", socket.id);
   });
+
+
+
 });
 
 

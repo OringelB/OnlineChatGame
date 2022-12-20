@@ -19,6 +19,10 @@ function LoginForm(props) {
             props.onLogin();
             props.changeUsername(username);
             alert("welcome " + username);
+            const { currentUser } = response.data;
+            // Save currentUser id and username in cookies
+            document.cookie = `userId=${currentUser.userId}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            document.cookie = `username=${currentUser.username}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
             
         } else {
           // Display an error message
