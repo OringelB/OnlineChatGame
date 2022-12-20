@@ -32,7 +32,6 @@ function JoinGame({ socket, username, room }) {
       {userCount > 1 && (
         <div>
           Player joined, let's play
-          {isUserFirst}
           <Chat socket={socket} username={username} room={room} />
           <Game socket={socket} room={room} isUserFirst={isUserFirst}/>
         </div>
