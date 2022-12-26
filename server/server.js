@@ -232,6 +232,10 @@ io.on("connection", (socket) => {
     socket.to(data.room).emit("receive_message", data);
   });
 
+   socket.on("leave_room", (data) => {
+    socket.to(data.room).emit("left_room", data);
+  });
+
   socket.on("updateGame", (data) => {
     socket.to(data.room).emit("change_game", data);
   });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import io from 'socket.io-client';
+import 'bootstrap/dist/css/bootstrap.css';
 
 
 function LoginForm(props) {
@@ -34,17 +34,24 @@ function LoginForm(props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Username:
-        <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} />
-      </label>
-      <label>
-        Password:
-        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-      </label>
-      <button type="submit">Login</button>
-    </form>
+    <div className="d-flex justify-content-center">
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>
+            Username:
+            <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} className="form-control" />
+          </label>
+        </div>
+        <div className="form-group">
+          <label>
+            Password:
+            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="form-control" />
+          </label>
+        </div>
+        <button type="submit" className="btn btn-primary">Login</button>
+      </form>
+    </div>
   );
+  
 }
 export default LoginForm;

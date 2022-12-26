@@ -6,6 +6,7 @@ import axios from 'axios';
 import io from "socket.io-client"
 import "./App.css";
 import JoinGame from './components/JoinGame';
+import 'bootstrap/dist/css/bootstrap.css';
 
 
 const socket = io.connect("http://localhost:3000");
@@ -18,6 +19,10 @@ function App() {
   const [showGame, setShowGame] = useState(false);
   const [user, setUser] = useState(null);
   const [room, setRoom] = useState(0);
+  const [showUsereList, setShowUserList] = useState(false);
+  const [showLeaveRoom, setShowLeaveRoom] = useState(false);
+
+
 
 
 
@@ -33,6 +38,7 @@ function App() {
 
   const changeUsername = (newUsername) => {
     setUsername(newUsername);
+    setShowUserList(true)
     return getUserByUsername(newUsername)
       .then(user => {
         setUser(user);
@@ -46,8 +52,10 @@ function App() {
 
 
   const handleOponent = oponent => {
+    setShowLeaveRoom(true);
     setShowGame(true);
     setOponent(oponent);
+    setShowUserList(false);
     const room = createRoom(oponent);
     socket.emit("join_room", room);
 
@@ -64,8 +72,27 @@ function App() {
   }
 
 
+  useEffect(() => {
+    socket.on("left_room", (data) => {
+      alert("Opponent left the room");
+      setShowGame(false);
+      setShowUserList(true);
+      setShowLeaveRoom(false);
+    });
+
+
+  }, [socket]);
+
+const handleLeaveRoom = () => {
+  setShowGame(false);
+  setShowUserList(true);
+  setShowLeaveRoom(false);
+  socket.emit("leave_room", { room: room });
+
+}
 
   const handleLogout = () => {
+    setShowUserList(false);
     axios.post('http://localhost:3000/logout', {
       username
     })
@@ -94,29 +121,28 @@ function App() {
           <RegistrationForm />
         </>
       )}
-      {loggedIn && (
+        {loggedIn && (
+          <button onClick={handleLogout} className="btn btn-primary">Logout</button>
+        )}
+        {showLeaveRoom && (
+          <button onClick={handleLeaveRoom} className="btn btn-primary">Leave Room</button>
+        )}
+      {showUsereList && (
         <UserList oponent={oponentUser} clickedUser={handleOponent} currentUser={user} />
       )}
-      {loggedIn && (
-        <button onClick={handleLogout}>Logout</button>
-      )}
 
-
-
-      <div>
+      {/* <div>
         {oponentUser !== null && (
           <div>
             <p>Oponent user: {oponentUser.username}</p>
           </div>
         )}
-      </div>
+      </div> */}
 
       {showGame && (
         <JoinGame socket={socket} username={username} room={room} />
       )}
     </div>
-
-
   );
 }
 

@@ -23,24 +23,24 @@ function JoinGame({ socket, username, room }) {
   }, [socket]);
 
 
+
   return (
     <>
       {userCount < 2 && (
-        <div>waiting for player to join...
-        </div>
+        <div className="alert alert-primary">waiting for player to join...</div>
       )}
       {userCount > 1 && (
-        <div>
-          Player joined, let's play
-          <Chat socket={socket} username={username} room={room} />
-          <Game socket={socket} room={room} isUserFirst={isUserFirst}/>
+        <div className="row no-gutters">
+
+          <div className="col-6">
+            <div className="alert alert-primary">Player joined, let's play</div>
+            <Game socket={socket} room={room} username={username} isUserFirst={isUserFirst}/>
+          </div>
         </div>
-
-
-
       )}
     </>
   );
+  
 }
 
 export default JoinGame;

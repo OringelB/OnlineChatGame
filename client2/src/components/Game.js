@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import Chat from './Chat';
 
-function Game({ socket, room, isUserFirst }) {
+function Game({ socket, room, isUserFirst, username }) {
     const [board, setBoard] = useState(Array(9).fill(null));
     const [currentPlayer, setCurrentPlayer] = useState('X');
     const [playerShape, setPlayerShape] = useState("");
@@ -11,7 +12,7 @@ function Game({ socket, room, isUserFirst }) {
         if (isUserFirst === 2) {
             setPlayerShape("X");
         }
-        else{
+        else {
             setPlayerShape("O")
         }
     }
@@ -19,18 +20,18 @@ function Game({ socket, room, isUserFirst }) {
     useEffect(() => {
         const winner = checkForWinner(board);
         setWinner(winner);
-      }, [board]);
-      
+    }, [board]);
+
 
     // useEffect hook to set the player shape and listen for changes to the game
     useEffect(() => {
         setPlayerShapeBasedOnIsUserFirst(isUserFirst);
 
         socket.on("change_game", (data) => {
-          setBoard(data.newBoard);
-          setCurrentPlayer(isUserFirst === 2 ? 'X' : 'O');
+            setBoard(data.newBoard);
+            setCurrentPlayer(isUserFirst === 2 ? 'X' : 'O');
         });
-      }, [socket,isUserFirst]);
+    }, [socket, isUserFirst]);
 
     // function to handle clicks on the squares
     const handleSquareClick = async (index) => {
@@ -49,7 +50,7 @@ function Game({ socket, room, isUserFirst }) {
         await socket.emit("updateGame", { room: room, newBoard: newBoard });
         setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
 
-   
+
     };
     // function to check if there is a winner
     function checkForWinner(board) {
@@ -72,8 +73,15 @@ function Game({ socket, room, isUserFirst }) {
         if (board[2] && board[2] === board[4] && board[4] === board[6]) {
             return board[2];
         }
+
+        // check for draw
+        if (board.every(square => square !== null)) {
+            return "Draw";
+        }
+
         return null;
     }
+
 
     // function to reset the game
     function resetGame() {
@@ -84,33 +92,48 @@ function Game({ socket, room, isUserFirst }) {
     }
 
     return (
-        <div className="game">
-          {winner ? (
-            <>
-              <h1>The winner is {winner}!</h1>
-              <button onClick={resetGame}>Play again</button>
-            </>
-          ):null }  
-            <>
-              <h1>whos turn: {currentPlayer}</h1>
-              <h1>you are: {playerShape}</h1>
-              <div className="board">
-                {board.map((square, index) => (
-                  <button
-                    key={index}
-                    className="square"
-                    disabled = {winner}
-                    onClick={() => handleSquareClick(index)}
-                  >
-                    {square}
-                  </button>
-                ))}
-              </div>
-            </>
-          
+        <div className="row no-gutters d-flex h-100">
+            <div className="col-6 mx-auto">
+                <Chat socket={socket} username={username} room={room} />
+            </div>
+            <div className="col-6 mx-auto">
+                <div className="game container text-center d-flex flex-column justify-content-center h-100">
+                    {winner === "O" || winner === "X" ? (
+                        <>
+                            <h1>The winner is {winner}!</h1>
+                            <button onClick={resetGame} className="btn btn-primary">Play again</button>
+                        </>
+                    ) : null}
+
+                    {winner === "Draw" ? (
+                        <>
+                            <h1>It's a draw!</h1>
+                            <button onClick={resetGame} className="btn btn-primary">Play again</button>
+                        </>
+                    ) : null}
+                    <>
+                        <div className="board">
+                            {board.map((square, index) => (
+                                <button
+                                    key={index}
+                                    className="square btn btn-secondary"
+                                    disabled={winner}
+                                    onClick={() => handleSquareClick(index)}
+                                >
+                                    {square}
+                                </button>
+                            ))}
+                        </div>
+                        <h1>whos turn: {currentPlayer}</h1>
+                        <h1>you are: {playerShape}</h1>
+                    </>
+                </div>
+            </div>
         </div>
-      );
-      
+    );
+
+
+
 };
 
 export default Game;

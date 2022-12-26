@@ -33,25 +33,36 @@ function RegistrationForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Username:
-        <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} />
-      </label>
-      <label>
-        Password:
-        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-      </label>
-      <label>
-        Name:
-        <input type="text" value={name} onChange={(event) => setName(event.target.value)} />
-      </label>
-      <label>
-        Last name:
-        <input type="text" value={lastname} onChange={(event) => setLastname(event.target.value)} />
-      </label>
-      <button onClick={handleSubmit} type='submit'>Submit</button>
-    </form>
+    <div className="d-flex justify-content-center">
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>
+            Username:
+            <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} className="form-control" />
+          </label>
+        </div>
+        <div className="form-group">
+          <label>
+            Password:
+            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="form-control" />
+          </label>
+        </div>
+        <div className="form-group">
+          <label>
+            Name:
+            <input type="text" value={name} onChange={(event) => setName(event.target.value)} className="form-control" />
+          </label>
+        </div>
+        <div className="form-group">
+          <label>
+            Last name:
+            <input type="text" value={lastname} onChange={(event) => setLastname(event.target.value)} className="form-control" />
+          </label>
+        </div>
+        <button onClick={handleSubmit} type='submit' className="btn btn-primary">Submit</button>
+      </form>
+    </div>
   );
+  
 }
 export default RegistrationForm

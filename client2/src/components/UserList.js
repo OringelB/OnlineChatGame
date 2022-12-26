@@ -20,21 +20,33 @@ function UserList(props) {
     }, [users]);
 
     return (
-        <ul>
-            {users.map((user) => {
+        <div className="mx-auto w-50">
+          <div className="card">
+            <div className="card-header">Users</div>
+            <ul className="list-group list-group-flush">
+              {users.map((user) => {
                 if (user.username !== currentUser.username) {
-                    return (
-                        <li key={user.userId}>
-                            {user.username}
-                            <button key={user.userId} onClick={()=> clickedUser(user)}>Send Message</button>
-                        </li>
-                    );
+                  return (
+                    <li key={user.userId} className="list-group-item d-flex justify-content-between align-items-center">
+                      {user.username}
+                      <button
+                        key={user.userId}
+                        onClick={() => clickedUser(user)}
+                        className="btn btn-primary"
+                      >
+                        Play a game
+                      </button>
+                    </li>
+                  );
                 } else {
-                    return null;
+                  return null;
                 }
-            })}
-        </ul>
-    );
+              })}
+            </ul>
+          </div>
+        </div>
+      );
+      
 }
 
 export default UserList;
